@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESNcard Checker</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f8ff;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #0077cc;
+    }
+
+    .card-input {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    input[type="text"] {
+      padding: 0.6rem;
+      border: 1px solid #0077cc;
+      border-radius: 8px;
+      width: 250px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.6rem 1rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .results {
+      margin-top: 2rem;
+      padding: 1rem 1.5rem;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-width: 300px;
+      display: none;
+    }
+
+    .results h2 {
+      color: #0077cc;
+    }
+
+    .result-row {
+      margin: 0.5rem 0;
+    }
+
+    .error {
+      color: red;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>ESNcard Info Lookup</h1>
+  <div class="card-input">
+    <input type="text" id="cardCode" placeholder="Enter ESNcard Code" />
+    <button onclick="fetchCardInfo()">Check</button>
+  </div>
+
+  <div id="error" class="error"></div>
+
+  <div class="results" id="results">
+    <h2>Card Information</h2>
+    <div id="resultContent"></div>
+  </div>
+
+  <script>
+    async function fetchCardInfo() {
+      const code = document.getElementById('cardCode').value.trim();
+      const errorDiv = document.getElementById('error');
+      const resultsDiv = document.getElementById('results');
+      const resultContent = document.getElementById('resultContent');
+
+      errorDiv.textContent = '';
+      resultsDiv.style.display = 'none';
+      resultContent.innerHTML = '';
+
+      if (!code) {
+        errorDiv.textContent = 'Please enter a valid ESNcard code.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://esncard.org/services/1.0/card.json?code=${code}`);
+        if (!res.ok) throw new Error('Card not found or API error.');
+        const data = await res.json();
+
+        resultsDiv.style.display = 'block';
+        for (const [key, value] of Object.entries(data)) {
+          const div = document.createElement('div');
+          div.className = 'result-row';
+          div.innerHTML = `<strong>${key}:</strong> ${value}`;
+          resultContent.appendChild(div);
+        }
+      } catch (err) {
+        errorDiv.textContent = err.message;
+      }
+    }
+  </script>
+</body>
+</html>
