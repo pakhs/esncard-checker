@@ -106,13 +106,24 @@
       try {
         const res = await fetch(`https://v0-esn-api-handler-function.vercel.app/api/card?code=${code}`);
         if (!res.ok) throw new Error('Card not found or API error.');
-        const data = await res.json();
+
+        const rawData = await res.json();
+        const data = rawData[0];
 
         resultsDiv.style.display = 'block';
-        for (const [key, value] of Object.entries(data)) {
+
+        const fields = {
+          "code": "Card Code",
+          "section-code": "Section",
+          "activation date": "Activation Date",
+          "expiration-date": "Expiration Date"
+        };
+
+        for (const [key, label] of Object.entries(fields)) {
+          const value = data[key];
           const div = document.createElement('div');
           div.className = 'result-row';
-          div.innerHTML = `<strong>${key}:</strong> ${value}`;
+          div.innerHTML = `<strong>${label}:</strong> ${value}`;
           resultContent.appendChild(div);
         }
       } catch (err) {
